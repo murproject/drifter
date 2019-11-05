@@ -89,7 +89,7 @@ void Http::post(const String & url, const String & body)
 		}
 		{	
 			String resp;
-			if (!sendAndWait("AT+HTTPSSL=0", resp, "OK", 5000)) {
+			if (!sendAndWait("AT+HTTPSSL=1", resp, "OK", 5000)) {
 				sendAndWait("AT+HTTPTERM", resp, "OK", 10000);
 				break;
 			}
