@@ -10,12 +10,15 @@ Http http;
 /*!!!Установить const int ID в значение 1, 2 или 3 для каждого дрифтера значение должно быть уникально!!!!*/
 /*!!!!!! т.е. для первого дрифтра установить значение в 1, второго в 2 и для третьего в 3!!!!!!!*/
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-const int ID = 0;
+const int ID = 1;
 /* Отображение ID в цвета */
 /* ID = 1 - красный */
 /* ID = 2 - зеленый */
 /* ID = 3 - синий */
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+//Выбор оператора SIM
+Http::Mobile oper = Http::Mobile::yota;
+
 
 static unsigned long time_update = 0;
 // the setup function runs once when you press reset or power the board
@@ -32,7 +35,7 @@ void setup() {
     }
 
     Serial3.begin(9600);
-    http.init_http();
+    http.init_http(oper);
     time_update = millis();
 }
 
@@ -69,7 +72,7 @@ void loop() {
                 String body = toJson(ID, gps.f_speed_kmph(), lat, longt);
                 http.post("https://robocenter.net/murtracker/point/create/",
                     body);
-                
+
                 time_update = millis();
             }
         }

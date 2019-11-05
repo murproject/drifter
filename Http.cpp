@@ -11,7 +11,7 @@ Http::~Http()
 {
 }
 
-void Http::init_http()
+void Http::init_http(Mobile oper)
 {
 	//reset();
 	modem.begin(9600);
@@ -27,18 +27,8 @@ void Http::init_http()
 			String resp;
 			if (!sendAndWait("AT+SAPBR=3,1,\"Contype\",\"GPRS\"", resp, "OK", 600)) continue;
 		}
-		{
-			String resp;
-			if (!sendAndWait("AT+SAPBR=3,1,\"APN\",\"internet.tele2.ru\"", resp, "OK", 600)) continue;
-		}
-
-        {
-            String resp;
-            if (!sendAndWait("AT+SAPBR=3,1,\"USER\",\"tele2\"", resp, "OK", 600)) continue;
-        }
-        {
-            String resp;
-            if (!sendAndWait("AT+SAPBR=3,1,\"PWD\",\"tele2\"", resp, "OK", 600)) continue;
+        if (!networkAuth(oper)) {
+            continue;
         }
 
 		{
@@ -99,7 +89,7 @@ void Http::post(const String & url, const String & body)
 		}
 		{	
 			String resp;
-			if (!sendAndWait("AT+HTTPSSL=1", resp, "OK", 5000)) {
+			if (!sendAndWait("AT+HTTPSSL=0", resp, "OK", 5000)) {
 				sendAndWait("AT+HTTPTERM", resp, "OK", 10000);
 				break;
 			}
@@ -172,4 +162,51 @@ void Http::reset()
 	digitalWrite(resetPin, HIGH);
 	delay(3000);
 	Serial.println("SIM800L RESET END");
+}
+
+bool Http::networkAuth(Mobile oper) {
+    switch (oper) {
+    case Mobile::yota:
+        return yotaAuth();
+    case Mobile::tele2:
+        return tele2Auth();
+    default:
+        return false;
+    }
+    return false;
+}
+
+bool Http::yotaAuth() {
+    {
+        Serial.println("yota auth");
+        String resp;
+        if (!sendAndWait("AT+SAPBR=3,1,\"APN\",\"internet.yota\"", resp, "OK", 600)) return false;
+    }
+
+    {
+        String resp;
+        if (!sendAndWait("AT+SAPBR=3,1,\"USER\",\"\"", resp, "OK", 600)) return false;
+    }
+    {
+        String resp;
+        if (!sendAndWait("AT+SAPBR=3,1,\"PWD\",\"\"", resp, "OK", 600)) return false;
+    }
+    return true;
+}
+
+bool Http::tele2Auth() {
+    {
+        String resp;
+        if (!sendAndWait("AT+SAPBR=3,1,\"APN\",\"internet.tele2.ru\"", resp, "OK", 600)) return false;
+    }
+
+    {
+        String resp;
+        if (!sendAndWait("AT+SAPBR=3,1,\"USER\",\"tele2\"", resp, "OK", 600)) return false;
+    }
+    {
+        String resp;
+        if (!sendAndWait("AT+SAPBR=3,1,\"PWD\",\"tele2\"", resp, "OK", 600)) return false;
+    }
+    return true;
 }

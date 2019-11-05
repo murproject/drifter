@@ -5,9 +5,14 @@
 class Http
 {
 public:
+    enum class Mobile {
+        yota,
+        mts,
+        tele2
+    };
 	Http();
 	~Http();
-	void init_http();
+	void init_http(Mobile oper);
 	void post(const String &url, const String &body);
 
 private:
@@ -20,5 +25,11 @@ private:
 		Serial.println(resp);
 		return ret;
 	}
+
+    bool networkAuth(Mobile oper);
+
+    bool yotaAuth();
+    bool tele2Auth();
+
 };
 
